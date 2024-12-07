@@ -6,7 +6,7 @@
 // @author       Wwwww
 // @match        https://*/game.php?*screen=train*
 // @grant        none
-// @icon         https://dscs.innogamescdn.com/asset/07220f21/graphic/buildings/barracks.png
+// @icon         https://e7.pngegg.com/pngimages/660/350/png-clipart-green-and-white-sheet-icon-google-docs-google-sheets-spreadsheet-g-suite-google-angle-rectangle-thumbnail.png
 // ==/UserScript==
 
 (function () {
