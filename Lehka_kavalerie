@@ -55,14 +55,6 @@
         return milliseconds;
     }
 
-    // Funkce pro randomizaci prodlevy mezi dvěma hodnotami
-    function randomizeTime(baseTimeMs, minOffsetMs) {
-        const randomMs = Math.random() * (baseTimeMs - minOffsetMs);
-        const randomizedTime = baseTimeMs - randomMs;
-        console.log(`Randomizovaný čas: ${randomizedTime} ms`);
-        return randomizedTime;
-    }
-
     // Funkce pro náhodné čekání (v milisekundách)
     function waitRandomMs(maxMs, callback) {
         const delay = Math.random() * maxMs;
@@ -77,7 +69,16 @@
         setTimeout(callback, delay);
     }
 
-    // Hlavní funkce pro automatizaci
+    // Funkce pro randomizaci prodlevy mezi dvěma hodnotami pro čekání mezi rekrutováním
+    function randomizeRecruitWaitTime(baseTimeMs) {
+        const minTimeMs = baseTimeMs - 30000; // Odchylka 30 sekund
+        const randomMs = Math.random() * (baseTimeMs - minTimeMs); // Náhodná doba mezi baseTimeMs a baseTimeMs - 30s
+        const randomizedTime = baseTimeMs - randomMs;
+        console.log(`Randomizovaný čekací čas mezi rekrutováním: ${randomizedTime} ms`);
+        return randomizedTime;
+    }
+
+    // Funkce pro automatizaci
     function automateRecruiting() {
         // Načti aktuální stav
         const state = loadState();
@@ -122,10 +123,10 @@
             console.log("Kliknutí na tlačítko 'Rekrutovat'.");
         });
 
-        // Čekání podle náhodně upraveného času
+        // Čekání mezi rekrutováním podle náhodně upraveného času
         const baseTimeMs = convertTimeToMs(state.time9); // Základní čas
-        const randomizedTimeMs = randomizeTime(baseTimeMs, 30000); // Randomizace s rozmezím (time9 - 30s)
-        console.log(`Čekám náhodný čas: ${randomizedTimeMs} ms před dalším rekrutováním.`);
+        const randomizedTimeMs = randomizeRecruitWaitTime(baseTimeMs); // Randomizace s rozmezím (time9 - 30s)
+        console.log(`Čekám náhodný čas mezi rekrutováním: ${randomizedTimeMs} ms před dalším rekrutováním.`);
         setTimeout(automateRecruiting, randomizedTimeMs);
     }
 
