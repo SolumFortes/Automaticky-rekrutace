@@ -1,12 +1,11 @@
 // ==UserScript==
 // @name         Tabulka
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.3
 // @description  Automatizace rekrutu jednotek s ukládáním změn a možností vypnutí tlačítka rekrutace.
 // @author       Wwwww
 // @match        https://*/game.php?*screen=train*
 // @grant        none
-// @icon         https://e7.pngegg.com/pngimages/660/350/png-clipart-green-and-white-sheet-icon-google-docs-google-sheets-spreadsheet-g-suite-google-angle-rectangle-thumbnail.png
 // ==/UserScript==
 
 (function () {
@@ -15,125 +14,107 @@
     // Přidání stylů pro tabulku
     const style = document.createElement('style');
     style.textContent = `
-        #customScriptContainer {
-            position: fixed;
-            top: 50px;
-            left: 20px;
-            background: #f0f0f0;
-            border: 1px solid #ccc;
+        .auto-recruit-container {
+            margin-top: 10px;
+            background-color: rgb(33, 31, 35);
+            border: 2px solid #5d4e65;
             border-radius: 8px;
-            padding: 15px;
-            box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            font-family: Arial, sans-serif;
-            width: 320px;
-        }
-        #customScriptContainer h2 {
-            margin: 0;
             padding: 10px;
-            background: #4CAF50;
-            color: #fff;
-            font-size: 16px;
-            text-align: center;
-            border-radius: 6px 6px 0 0;
-        }
-        #customScriptContainer label {
-            display: block;
-            margin-top: 10px;
+            color: white;
+            font-family: 'Lato', sans-serif;
             font-size: 14px;
-            color: #333;
+            text-align: center;
         }
-        #customScriptContainer input[type="text"] {
-            width: 80px;
-            padding: 8px;
+        .auto-recruit-header {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        .auto-recruit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+        }
+        .auto-recruit-item {
+            background-color: rgb(83, 69, 91);
+            border: 2px solid #5d4e65;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .auto-recruit-item input[type="text"] {
+            width: 80%;
             margin-top: 5px;
+            padding: 5px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 12px;
             text-align: center;
         }
-        #customScriptContainer .checkbox-group {
-            margin-top: 10px;
-        }
-        #customScriptContainer .checkbox-group label {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        #customScriptContainer .checkbox-group input {
-            margin-right: 8px;
-        }
-        #customScriptContainer .column {
-            display: inline-block;
-            width: 45%;
-            vertical-align: top;
-        }
-        #customScriptContainer button {
-            margin-top: 15px;
-            padding: 10px;
-            width: 100%;
-            background: #4CAF50;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
+        .auto-recruit-item label {
             font-size: 14px;
+            color: #fff;
+        }
+        .auto-recruit-button {
+            background-color: rgb(238, 122, 54);
+            border: none;
+            padding: 10px;
+            margin-top: 10px;
+            width: 100%;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 4px;
             cursor: pointer;
         }
-        #customScriptContainer button:hover {
-            background: #45a049;
+        .auto-recruit-button:hover {
+            background-color: #eb495d;
         }
     `;
     document.head.appendChild(style);
 
-    // Funkce pro vytvoření tabulky
-    function createTable() {
+    // Vytvoření tabulky pro automatický rekrut
+    function createRecruitmentTable() {
         const container = document.createElement('div');
-        container.id = 'customScriptContainer';
+        container.className = 'auto-recruit-container';
         container.innerHTML = `
-            <h2>Automatický rekrut</h2>
-            <div class="column">
-                <div class="checkbox-group">
-                    <label><input type="checkbox" id="checkbox1"> Kopiník</label>
-                    <input type="text" id="time1" placeholder="Čas (MM:SS)" maxlength="5">
-                </div>
-                <div class="checkbox-group">
-                    <label><input type="checkbox" id="checkbox2"> Šermíř</label>
-                    <input type="text" id="time2" placeholder="Čas (MM:SS)" maxlength="5">
-                </div>
-                <div class="checkbox-group">
-                    <label><input type="checkbox" id="checkbox3"> Sekerník</label>
-                    <input type="text" id="time3" placeholder="Čas (MM:SS)" maxlength="5">
-                </div>
-                <div class="checkbox-group">
-                    <label><input type="checkbox" id="checkbox4"> Lučišník</label>
-                    <input type="text" id="time4" placeholder="Čas (MM:SS)" maxlength="5">
-                </div>
+            <div class="auto-recruit-header">Automatický rekrut</div>
+            <div class="auto-recruit-grid">
+                ${createRecruitItems()}
             </div>
-            <div class="column">
-                <div class="checkbox-group">
-                    <label><input type="checkbox" id="checkbox5"> Špeh</label>
-                    <input type="text" id="time5" placeholder="Čas (MM:SS)" maxlength="5">
-                </div>
-                <div class="checkbox-group">
-                    <label><input type="checkbox" id="checkbox6"> Lučišník na koni</label>
-                    <input type="text" id="time6" placeholder="Čas (MM:SS)" maxlength="5">
-                </div>
-                <div class="checkbox-group">
-                    <label><input type="checkbox" id="checkbox7"> Beranidlo</label>
-                    <input type="text" id="time7" placeholder="Čas (MM:SS)" maxlength="5">
-                </div>
-                <div class="checkbox-group">
-                    <label><input type="checkbox" id="checkbox8"> Katapult</label>
-                    <input type="text" id="time8" placeholder="Čas (MM:SS)" maxlength="5">
-                </div>
-                <div class="checkbox-group">
-                    <label><input type="checkbox" id="checkbox9"> Lehká kavalerie</label>
-                    <input type="text" id="time9" placeholder="Čas (MM:SS)" maxlength="5">
-                </div>
-            </div>
-            <button id="recruitButton">Rekrutovat</button>
+            <button class="auto-recruit-button" id="recruitButton">Rekrutovat</button>
         `;
-        document.body.appendChild(container);
+        const parentTable = document.querySelector('.vis');
+        parentTable.insertAdjacentElement('afterend', container);
+    }
+
+    // Funkce pro generování položek
+    function createRecruitItems() {
+        const units = [
+            'Kopiník',
+            'Šermíř',
+            'Sekerník',
+            'Lučišník',
+            'Špeh',
+            'Lučišník na koni',
+            'Beranidlo',
+            'Katapult',
+            'Lehká kavalerie'
+        ];
+        let html = '';
+        units.forEach((unit, index) => {
+            html += `
+                <div class="auto-recruit-item">
+                    <label>
+                        <input type="checkbox" id="checkbox${index + 1}">
+                        ${unit}
+                    </label>
+                    <input type="text" id="time${index + 1}" placeholder="Čas (MM:SS)" maxlength="5">
+                </div>
+            `;
+        });
+        return html;
     }
 
     // Funkce pro uložení stavu do localStorage
@@ -168,31 +149,28 @@
         }
     }
 
-    // Vytvoření tabulky při načtení stránky
-    if (!document.getElementById('customScriptContainer')) {
-        createTable();
-    }
-
-    // Načtení stavu po načtení stránky (a ihned uložení stavu)
-    loadState();
-    saveState();
-
     // Události pro všechny checkboxy a textová pole
-    for (let i = 1; i <= 9; i++) {
-        document.getElementById(`checkbox${i}`).addEventListener('change', saveState);
-        document.getElementById(`time${i}`).addEventListener('input', saveState);
+    function attachEventListeners() {
+        for (let i = 1; i <= 9; i++) {
+            document.getElementById(`checkbox${i}`).addEventListener('change', saveState);
+            document.getElementById(`time${i}`).addEventListener('input', saveState);
+        }
+
+        document.getElementById('recruitButton').addEventListener('click', () => {
+            const recruitButton = document.getElementById('recruitButton');
+            if (recruitButton.innerText === 'Rekrutace v procesu...') {
+                recruitButton.innerText = 'Rekrutovat'; // Ruční vypnutí
+            } else {
+                recruitButton.innerText = 'Rekrutace v procesu...';
+            }
+            saveState();
+        });
     }
 
-    // Obsluha tlačítka rekrutace
-    document.getElementById('recruitButton').addEventListener('click', () => {
-        const recruitButton = document.getElementById('recruitButton');
-        if (recruitButton.innerText === 'Rekrutace v procesu...') {
-            recruitButton.innerText = 'Rekrutovat'; // Ruční vypnutí
-        } else {
-            recruitButton.innerText = 'Rekrutace v procesu...';
-        }
-        saveState();
-    });
+    // Inicializace
+    createRecruitmentTable();
+    loadState();
+    attachEventListeners();
 
     // Automatické obnovení stránky každých 30 minut (pokud je požadováno)
     setInterval(() => {
