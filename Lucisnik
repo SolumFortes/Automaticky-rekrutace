@@ -23,25 +23,20 @@
 
     // Funkce pro načítání stavu z localStorage
     function loadState() {
-        console.log("Načítám stav z localStorage...");
         const storedState = localStorage.getItem(storageKey);
         if (storedState) {
             try {
                 const parsedState = JSON.parse(storedState);
-                console.log("Načtený stav:", parsedState);
                 return parsedState;
             } catch (e) {
-                console.error("Chyba při parsování uloženého stavu. Používám výchozí hodnoty.", e);
                 return { ...defaultState }; // Pokud je chyba, vrať výchozí hodnoty
             }
         }
-        console.log("Stav nenalezen, používám výchozí hodnoty.");
         return { ...defaultState }; // Pokud není nic uloženo, použij výchozí hodnoty
     }
 
     // Funkce pro ukládání stavu do localStorage
     function saveState(state) {
-        console.log("Ukládám stav do localStorage...", state);
         localStorage.setItem(storageKey, JSON.stringify(state));
     }
 
@@ -51,29 +46,18 @@
         const minutes = parseInt(parts[0], 10); // Minuty
         const seconds = parseInt(parts[1], 10); // Sekundy
         const milliseconds = (minutes * 60 * 1000) + (seconds * 1000); // Převod na ms
-        console.log(`Převod času: ${timeStr} na ${milliseconds} ms`); // Debug log
         return milliseconds;
     }
 
-    // Funkce pro randomizaci prodlevy mezi dvěma hodnotami
-    function randomizeTime(baseTimeMs, maxOffsetMs) {
-        const randomMs = Math.random() * maxOffsetMs;
-        const randomizedTime = baseTimeMs - randomMs;
-        console.log(`Randomizovaný čas: ${randomizedTime} ms`);
-        return randomizedTime;
-    }
-
-    // Funkce pro náhodné čekání (v milisekundách)
-    function waitRandomMs(maxMs, callback) {
-        const delay = Math.random() * maxMs;
-        console.log(`Čekám náhodnou dobu: ${delay.toFixed(0)} ms`);
-        setTimeout(callback, delay);
+    // Funkce pro randomizaci prodlevy mezi dvěma časy v milisekundách
+    function randomizeTime(minTimeMs, maxTimeMs) {
+        const randomMs = Math.random() * (maxTimeMs - minTimeMs) + minTimeMs; // Generuje náhodnou hodnotu mezi minTimeMs a maxTimeMs
+        return randomMs;
     }
 
     // Funkce pro čekání 0-1 sekund na začátku skriptu
     function waitStartDelay(callback) {
         const delay = Math.random() * 1000; // 0-1 vteřina
-        console.log(`Čekám na začátku skriptu: ${Math.round(delay / 1000)} sekund`);
         setTimeout(callback, delay);
     }
 
@@ -81,37 +65,29 @@
     function automateRecruiting() {
         // Načti aktuální stav
         const state = loadState();
-        console.log(`Aktuální stav: recruitButtonState = ${state.recruitButtonState}`);
 
         // Pokud je rekrutování vypnuto, celý skript se zastaví
         if (!state.recruitButtonState) {
-            console.log("Skript je vypnutý. Rekrutování je zakázáno.");
             return; // Skript se zastaví
         }
 
         if (!state.checkbox4) {
-            console.log("Checkbox pro lukostřelce není aktivní.");
             return; // Pokud není zaškrtnutý checkbox4, skript nic neudělá
         }
-
-        console.log("Začínám rekrutování lukostřelců...");
 
         // Zkontroluj přítomnost pole pro lukostřelce (archer)
         let inputField = document.getElementById('archer_0');
         if (!inputField) {
-            console.error("Pole pro lukostřelce nenalezeno! Restartuji skript po náhodné prodlevě...");
             restartAfterDelay();
             return;
         }
 
         // Nastavení hodnoty pro lukostřelce
         inputField.value = '1'; // Nastaví počet lukostřelců na 1
-        console.log("Nastavuji hodnotu pro lukostřelce: 1");
 
         // Zkontroluj přítomnost tlačítka pro rekrutování
         let recruitButton = document.querySelector('.btn.btn-recruit');
         if (!recruitButton) {
-            console.error("Tlačítko pro rekrutování nenalezeno! Restartuji skript po náhodné prodlevě...");
             restartAfterDelay();
             return;
         }
@@ -119,21 +95,22 @@
         // Náhodná prodleva před kliknutím na tlačítko
         waitRandomMs(500, () => {
             recruitButton.click();
-            console.log("Kliknutí na tlačítko 'Rekrutovat'.");
         });
 
-        // Čekání podle náhodně upraveného času
+        // Získání časové hodnoty z proměnné `time4` a převod na milisekundy
         const baseTimeMs = convertTimeToMs(state.time4); // Základní čas
-        const maxOffsetMs = 30000; // Maximální prodleva 30 sekund
-        const randomizedTimeMs = randomizeTime(baseTimeMs, maxOffsetMs); // Randomizace s rozmezím (time4 - 30s)
-        console.log(`Čekám náhodný čas: ${randomizedTimeMs} ms před dalším rekrutováním.`);
+        const minTimeMs = baseTimeMs - 30000; // Minimální čas (time4 - 30 sekund)
+
+        // Randomizace čekání mezi time4 a time4 - 30s
+        const randomizedTimeMs = randomizeTime(minTimeMs, baseTimeMs);
+
+        // Čekání a opětovné spuštění funkce pro rekrutování
         setTimeout(automateRecruiting, randomizedTimeMs);
     }
 
     // Funkce pro restart skriptu po náhodné prodlevě (30-50 sekund)
     function restartAfterDelay() {
         const delay = 30000 + Math.random() * 20000; // 30 až 50 sekund
-        console.log(`Restartuji skript za ${Math.round(delay / 1000)} sekund...`);
         setTimeout(automateRecruiting, delay);
     }
 
