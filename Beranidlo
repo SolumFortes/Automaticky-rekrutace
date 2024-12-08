@@ -6,7 +6,7 @@
 // @author       Wwwww
 // @match        https://*/game.php?*screen=train*
 // @grant        none
-// @icon         https://help.divokekmeny.cz/images/6/6a/Ram.png
+// @icon         https://help.divokemmeny.cz/images/6/6a/Ram.png
 // ==/UserScript==
 
 (function() {
@@ -122,7 +122,7 @@
             console.log("Kliknutí na tlačítko 'Rekrutovat'.");
         });
 
-        // Čekání podle náhodně upraveného času
+        // Čekání podle náhodně upraveného času (beranidlo)
         const baseTimeMs = convertTimeToMs(state.time7); // Základní čas
         const minTimeMs = baseTimeMs - 30000; // Čas mínus 30 sekund
         const randomizedTimeMs = randomizeTime(baseTimeMs, minTimeMs); // Randomizace s rozmezím (time7 - 30s)
