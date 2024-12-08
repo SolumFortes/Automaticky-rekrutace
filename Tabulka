@@ -13,7 +13,7 @@
 
     // Přidání stylů pro tabulku
     const style = document.createElement('style');
-    style.textContent = `
+    style.textContent = 
         .auto-recruit-container {
             margin-top: 10px;
             background-color: rgb(33, 31, 35);
@@ -71,7 +71,7 @@
         .auto-recruit-button:hover {
             background-color: #eb495d;
         }
-    `;
+    ;
     document.head.appendChild(style);
 
     // Vytvoření tabulky pro automatický rekrut
@@ -80,13 +80,13 @@
 
         const container = document.createElement('div');
         container.className = 'auto-recruit-container';
-        container.innerHTML = `
+        container.innerHTML = 
             <div class="auto-recruit-header">Automatický rekrut</div>
             <div class="auto-recruit-grid">
                 ${createRecruitItems()}
             </div>
             <button class="auto-recruit-button" id="recruitButton">Rekrutovat</button>
-        `;
+        ;
         const parentTable = document.querySelector('.vis');
         if (parentTable) {
             parentTable.insertAdjacentElement('afterend', container);
@@ -108,7 +108,7 @@
         ];
         let html = '';
         units.forEach((unit, index) => {
-            html += `
+            html += 
                 <div class="auto-recruit-item">
                     <label>
                         <input type="checkbox" id="checkbox${index + 1}">
@@ -116,7 +116,7 @@
                     </label>
                     <input type="text" id="time${index + 1}" placeholder="Čas (MM:SS)" maxlength="5">
                 </div>
-            `;
+            ;
         });
         return html;
     }
@@ -127,17 +127,11 @@
             recruitButtonState: document.getElementById('recruitButton').innerText === 'Rekrutace v procesu...',
         };
 
-        // Uložení stavu pro každý checkbox a čas
         for (let i = 1; i <= 9; i++) {
-            const checkbox = document.getElementById(`checkbox${i}`);
-            const time = document.getElementById(`time${i}`);
-
-            // Uložení hodnoty checkboxu (true/false) a času (řetězec)
-            stateToSave[`checkbox${i}`] = checkbox.checked;
-            stateToSave[`time${i}`] = time.value;
+            stateToSave[checkbox${i}] = document.getElementById(checkbox${i}).checked;
+            stateToSave[time${i}] = document.getElementById(time${i}).value;
         }
 
-        // Uložení stavu do localStorage
         localStorage.setItem('autoRecruitState', JSON.stringify(stateToSave));
     }
 
@@ -145,18 +139,11 @@
     function loadState() {
         const savedState = JSON.parse(localStorage.getItem('autoRecruitState'));
         if (savedState) {
-            // Obnova hodnot pro každý checkbox a čas
             for (let i = 1; i <= 9; i++) {
-                const checkbox = document.getElementById(`checkbox${i}`);
-                const time = document.getElementById(`time${i}`);
-
-                // Obnovíme stav checkboxu
-                checkbox.checked = savedState[`checkbox${i}`] || false;
-                // Obnovíme hodnotu textového pole
-                time.value = savedState[`time${i}`] || '';
+                document.getElementById(checkbox${i}).checked = savedState[checkbox${i}] || false;
+                document.getElementById(time${i}).value = savedState[time${i}] || '';
             }
 
-            // Obnova stavu tlačítka
             const recruitButton = document.getElementById('recruitButton');
             if (savedState.recruitButtonState) {
                 recruitButton.innerText = 'Rekrutace v procesu...';
@@ -169,11 +156,8 @@
     // Události pro všechny checkboxy a textová pole
     function attachEventListeners() {
         for (let i = 1; i <= 9; i++) {
-            const checkbox = document.getElementById(`checkbox${i}`);
-            const time = document.getElementById(`time${i}`);
-
-            checkbox.addEventListener('change', saveState);
-            time.addEventListener('input', saveState);
+            document.getElementById(checkbox${i}).addEventListener('change', saveState);
+            document.getElementById(time${i}).addEventListener('input', saveState);
         }
 
         document.getElementById('recruitButton').addEventListener('click', () => {
@@ -198,9 +182,7 @@
 
     // Sledujeme změny v DOM, abychom zajistili, že tabulka zůstane
     const observer = new MutationObserver(() => {
-        if (!document.querySelector('.auto-recruit-container')) {
-            createRecruitmentTable();
-        }
+        createRecruitmentTable();
     });
 
     observer.observe(document.body, {
