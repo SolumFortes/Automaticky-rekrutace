@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Tabulka
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.2
 // @description  Automatizace rekrutu jednotek s ukládáním změn a možností vypnutí tlačítka rekrutace.
 // @author       Wwwww
 // @match        https://*/game.php?*screen=train*
@@ -176,25 +176,10 @@
     // Načtení stavu po načtení stránky
     loadState();
 
+    // Ihned uložení stavu při prvním načtení stránky
+    saveState();
+
     // Události pro všechny checkboxy a textová pole
     for (let i = 1; i <= 9; i++) {
         document.getElementById(`checkbox${i}`).addEventListener('change', saveState);
-        document.getElementById(`time${i}`).addEventListener('input', saveState);
-    }
-
-    // Obsluha tlačítka rekrutace
-    document.getElementById('recruitButton').addEventListener('click', () => {
-        const recruitButton = document.getElementById('recruitButton');
-        if (recruitButton.innerText === 'Rekrutace v procesu...') {
-            recruitButton.innerText = 'Rekrutovat'; // Ruční vypnutí
-        } else {
-            recruitButton.innerText = 'Rekrutace v procesu...';
-        }
-        saveState();
-    });
-
-    // Automatické obnovení stránky každých 30 minut (pokud je požadováno)
-    setInterval(() => {
-        location.reload();
-    }, 30 * 60 * 1000); // 30 minut
-})();
+        document.getElement
