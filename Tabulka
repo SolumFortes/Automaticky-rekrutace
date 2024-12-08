@@ -182,7 +182,9 @@
 
     // Sledujeme změny v DOM, abychom zajistili, že tabulka zůstane
     const observer = new MutationObserver(() => {
-        createRecruitmentTable();
+        if (!document.querySelector('.auto-recruit-container')) {
+            createRecruitmentTable();
+        }
     });
 
     observer.observe(document.body, {
