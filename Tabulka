@@ -127,11 +127,17 @@
             recruitButtonState: document.getElementById('recruitButton').innerText === 'Rekrutace v procesu...',
         };
 
+        // Uložení stavu pro každý checkbox a čas
         for (let i = 1; i <= 9; i++) {
-            stateToSave[`checkbox${i}`] = document.getElementById(`checkbox${i}`).checked;
-            stateToSave[`time${i}`] = document.getElementById(`time${i}`).value;
+            const checkbox = document.getElementById(`checkbox${i}`);
+            const time = document.getElementById(`time${i}`);
+
+            // Uložení hodnoty checkboxu (true/false) a času (řetězec)
+            stateToSave[`checkbox${i}`] = checkbox.checked;
+            stateToSave[`time${i}`] = time.value;
         }
 
+        // Uložení stavu do localStorage
         localStorage.setItem('autoRecruitState', JSON.stringify(stateToSave));
     }
 
@@ -139,11 +145,18 @@
     function loadState() {
         const savedState = JSON.parse(localStorage.getItem('autoRecruitState'));
         if (savedState) {
+            // Obnova hodnot pro každý checkbox a čas
             for (let i = 1; i <= 9; i++) {
-                document.getElementById(`checkbox${i}`).checked = savedState[`checkbox${i}`] || false;
-                document.getElementById(`time${i}`).value = savedState[`time${i}`] || '';
+                const checkbox = document.getElementById(`checkbox${i}`);
+                const time = document.getElementById(`time${i}`);
+
+                // Obnovíme stav checkboxu
+                checkbox.checked = savedState[`checkbox${i}`] || false;
+                // Obnovíme hodnotu textového pole
+                time.value = savedState[`time${i}`] || '';
             }
 
+            // Obnova stavu tlačítka
             const recruitButton = document.getElementById('recruitButton');
             if (savedState.recruitButtonState) {
                 recruitButton.innerText = 'Rekrutace v procesu...';
@@ -156,8 +169,11 @@
     // Události pro všechny checkboxy a textová pole
     function attachEventListeners() {
         for (let i = 1; i <= 9; i++) {
-            document.getElementById(`checkbox${i}`).addEventListener('change', saveState);
-            document.getElementById(`time${i}`).addEventListener('input', saveState);
+            const checkbox = document.getElementById(`checkbox${i}`);
+            const time = document.getElementById(`time${i}`);
+
+            checkbox.addEventListener('change', saveState);
+            time.addEventListener('input', saveState);
         }
 
         document.getElementById('recruitButton').addEventListener('click', () => {
