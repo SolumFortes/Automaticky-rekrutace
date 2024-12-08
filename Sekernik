@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Sekernik
+// @name         Sekerník
 // @namespace    http://tampermonkey.net/
 // @version      1.0
 // @description  Automatizace rekrutu sekeromlatníků s náhodnými prodlevami, opakováním při chybě a časovými intervaly.
