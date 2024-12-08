@@ -162,6 +162,7 @@
                 recruitButton.innerText = 'Rekrutovat'; // Ruční vypnutí
             } else {
                 recruitButton.innerText = 'Rekrutace v procesu...';
+                location.reload(); // Obnovení stránky při přepnutí
             }
             saveState();
         });
