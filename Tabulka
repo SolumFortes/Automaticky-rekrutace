@@ -76,6 +76,8 @@
 
     // Vytvoření tabulky pro automatický rekrut
     function createRecruitmentTable() {
+        if (document.querySelector('.auto-recruit-container')) return; // Pokud tabulka již existuje, nic neprovádět
+
         const container = document.createElement('div');
         container.className = 'auto-recruit-container';
         container.innerHTML = `
@@ -86,7 +88,9 @@
             <button class="auto-recruit-button" id="recruitButton">Rekrutovat</button>
         `;
         const parentTable = document.querySelector('.vis');
-        parentTable.insertAdjacentElement('afterend', container);
+        if (parentTable) {
+            parentTable.insertAdjacentElement('afterend', container);
+        }
     }
 
     // Funkce pro generování položek
@@ -158,12 +162,15 @@
 
         document.getElementById('recruitButton').addEventListener('click', () => {
             const recruitButton = document.getElementById('recruitButton');
+            // Změna stavu tlačítka a obnovení stránky
             if (recruitButton.innerText === 'Rekrutace v procesu...') {
                 recruitButton.innerText = 'Rekrutovat'; // Ruční vypnutí
             } else {
                 recruitButton.innerText = 'Rekrutace v procesu...';
-                location.reload(); // Obnovení stránky při přepnutí
             }
+
+            // Obnovení stránky po kliknutí na tlačítko
+            location.reload();
             saveState();
         });
     }
@@ -172,6 +179,16 @@
     createRecruitmentTable();
     loadState();
     attachEventListeners();
+
+    // Sledujeme změny v DOM, abychom zajistili, že tabulka zůstane
+    const observer = new MutationObserver(() => {
+        createRecruitmentTable();
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
 
     // Automatické obnovení stránky každých 30 minut (pokud je požadováno)
     setInterval(() => {
