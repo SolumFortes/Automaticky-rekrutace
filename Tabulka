@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         tabulka
+// @name         Tabulka
 // @namespace    http://tampermonkey.net/
-// @version      1.4
+// @version      1.0
 // @description  Automatizace rekrutu jednotek s ukládáním změn a možností vypnutí tlačítka rekrutace.
 // @author       Wwwww
 // @match        https://*/game.php?*screen=train*
