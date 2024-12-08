@@ -1,0 +1,143 @@
+// ==UserScript==
+// @name         Šermíř
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  Automatizace rekrutu šermířů s náhodnými prodlevami, opakováním při chybě a časovými intervaly.
+// @author       Wwwww
+// @match        https://*/game.php?*screen=train*
+// @grant        none
+// @icon         https://help.divokekmeny.cz/images/8/89/Sword.png
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    const storageKey = 'autoRecruitState'; // Klíč pro uložení do localStorage
+
+    // Výchozí hodnoty proměnných
+    const defaultState = {
+        recruitButtonState: true,  // Tato proměnná rozhoduje o aktivaci skriptu
+        checkbox2: true,  // checkbox2 pro šermíře
+        time2: "07:46"    // Čas mezi rekrutováním šermířů
+    };
+
+    // Funkce pro načítání stavu z localStorage
+    function loadState() {
+        console.log("Načítám stav z localStorage...");
+        const storedState = localStorage.getItem(storageKey);
+        if (storedState) {
+            try {
+                const parsedState = JSON.parse(storedState);
+                console.log("Načtený stav:", parsedState);
+                return parsedState;
+            } catch (e) {
+                console.error("Chyba při parsování uloženého stavu. Používám výchozí hodnoty.", e);
+                return { ...defaultState }; // Pokud je chyba, vrať výchozí hodnoty
+            }
+        }
+        console.log("Stav nenalezen, používám výchozí hodnoty.");
+        return { ...defaultState }; // Pokud není nic uloženo, použij výchozí hodnoty
+    }
+
+    // Funkce pro ukládání stavu do localStorage
+    function saveState(state) {
+        console.log("Ukládám stav do localStorage...", state);
+        localStorage.setItem(storageKey, JSON.stringify(state));
+    }
+
+    // Funkce pro převod času na milisekundy
+    function convertTimeToMs(timeStr) {
+        const parts = timeStr.split(':'); // Rozdělení času na minuty a sekundy
+        const minutes = parseInt(parts[0], 10); // Minuty
+        const seconds = parseInt(parts[1], 10); // Sekundy
+        const milliseconds = (minutes * 60 * 1000) + (seconds * 1000); // Převod na ms
+        console.log(`Převod času: ${timeStr} na ${milliseconds} ms`); // Debug log
+        return milliseconds;
+    }
+
+    // Funkce pro randomizaci prodlevy mezi dvěma hodnotami s maximem 30 sekund
+    function randomizeTime(baseTimeMs, maxOffsetMs) {
+        const randomMs = Math.random() * (baseTimeMs - maxOffsetMs);
+        const randomizedTime = baseTimeMs - randomMs;
+        const cappedTime = Math.min(randomizedTime, 30000); // Ensure no delay exceeds 30 seconds
+        console.log(`Randomizovaný čas: ${cappedTime} ms (maximálně 30 sekund)`);
+        return cappedTime;
+    }
+
+    // Funkce pro náhodné čekání (v milisekundách)
+    function waitRandomMs(maxMs, callback) {
+        const delay = Math.random() * maxMs;
+        console.log(`Čekám náhodnou dobu: ${delay.toFixed(0)} ms`);
+        setTimeout(callback, delay);
+    }
+
+    // Funkce pro čekání 0-1 sekund na začátku skriptu
+    function waitStartDelay(callback) {
+        const delay = Math.random() * 1000; // 0-1 vteřina
+        console.log(`Čekám na začátku skriptu: ${Math.round(delay / 1000)} sekund`);
+        setTimeout(callback, delay);
+    }
+
+    // Hlavní funkce pro automatizaci
+    function automateRecruiting() {
+        // Načti aktuální stav
+        const state = loadState();
+        console.log(`Aktuální stav: recruitButtonState = ${state.recruitButtonState}`);
+
+        // Pokud je rekrutování vypnuto, celý skript se zastaví
+        if (!state.recruitButtonState) {
+            console.log("Skript je vypnutý. Rekrutování je zakázáno.");
+            return; // Skript se zastaví
+        }
+
+        if (!state.checkbox2) {
+            console.log("Checkbox pro šermíře není aktivní.");
+            return; // Pokud není zaškrtnutý checkbox2, skript nic neudělá
+        }
+
+        console.log("Začínám rekrutování šermířů...");
+
+        // Zkontroluj přítomnost pole pro šermíře (sword)
+        let inputField = document.getElementById('sword_0');
+        if (!inputField) {
+            console.error("Pole pro šermíře nenalezeno! Restartuji skript po náhodné prodlevě...");
+            restartAfterDelay();
+            return;
+        }
+
+        // Nastavení hodnoty pro šermíře
+        inputField.value = '1'; // Nastaví počet šermířů na 1
+        console.log("Nastavuji hodnotu pro šermíře: 1");
+
+        // Zkontroluj přítomnost tlačítka pro rekrutování
+        let recruitButton = document.querySelector('.btn.btn-recruit');
+        if (!recruitButton) {
+            console.error("Tlačítko pro rekrutování nenalezeno! Restartuji skript po náhodné prodlevě...");
+            restartAfterDelay();
+            return;
+        }
+
+        // Náhodná prodleva před kliknutím na tlačítko
+        waitRandomMs(500, () => {
+            recruitButton.click();
+            console.log("Kliknutí na tlačítko 'Rekrutovat'.");
+        });
+
+        // Čekání podle náhodně upraveného času s maximem 30 sekund
+        const baseTimeMs = convertTimeToMs(state.time2); // Základní čas
+        const randomizedTimeMs = randomizeTime(baseTimeMs, 30000); // Randomizace s rozmezím (time2 - 30s)
+        console.log(`Čekám náhodný čas: ${randomizedTimeMs} ms před dalším rekrutováním.`);
+        setTimeout(automateRecruiting, randomizedTimeMs);
+    }
+
+    // Funkce pro restart skriptu po náhodné prodlevě (30-50 sekund)
+    function restartAfterDelay() {
+        const delay = 30000 + Math.random() * 20000; // 30 až 50 sekund
+        console.log(`Restartuji skript za ${Math.round(delay / 1000)} sekund...`);
+        setTimeout(automateRecruiting, delay);
+    }
+
+    // Načtení stavu a spuštění skriptu s prodlevou na začátku
+    waitStartDelay(automateRecruiting);
+
+})();
